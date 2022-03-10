@@ -18,22 +18,19 @@ const Tab = createBottomTabNavigator()
 
 export default function App() {
   const auth = useAuth()
- 
+
+  if (true) return <LoginScreen></LoginScreen>
+  
   return (
     <NavigationContainer>
       <Tab.Navigator>
-        {auth ? (
-          <>
-            <Tab.Screen name='Login' component={LoginScreen} />
-          </>
-        ) : (
-          <>
-            <Tab.Screen name='Home' component={HomeScreen} />
-            <Tab.Screen name='QRScreen' component={QRScreen} />
-            <Tab.Screen name='Personal' component={PersonalScreen} />
-            <Tab.Screen name='Settings' component={SettingsScreen} />
-          </>
-        )}
+        <>
+          <Tab.Screen name='Home' component={HomeScreen} />
+          <Tab.Screen name='QRScreen' component={QRScreen} />
+          <Tab.Screen name='Personal' component={PersonalScreen} />
+          <Tab.Screen name='Settings' component={SettingsScreen} />
+        </>
+
       </Tab.Navigator>
     </NavigationContainer>
   )
