@@ -1,4 +1,5 @@
 import axios from "axios"
+import api from '../../services/api/index'
 import React, { useEffect, useState } from "react"
 import { View, TextInput, TouchableOpacity, Text, Button } from "react-native"
 import { useAuth } from "../../hooks/useAuth/useAuth"
@@ -12,12 +13,13 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [data, setData] = useState(null)
 
-  const singIn = () => {
+  const singIn = async () => {
     try {
+      setIsLoading(true)
       console.log('doing request')
-      axios
-        .post(
-          "http://34.88.192.252/api/user/login",
+      const { data: loginData } = await api.auth
+        .login(
+          "",
           JSON.stringify({
             username: username,
             password: password,
@@ -32,15 +34,16 @@ export default function LoginScreen() {
             },
           },
         )
-        .then(response => {
-          setData(response.data)
-          console.log(response.data)
-        })
-        .catch(error => {
-          console.error(error)
-        })
+      console.log('after request yo', loginData)
+
+      auth.setToken(loginData.token)
+      auth.setUser(loginData.data)
+
+      console.log(loginData)
+      console.log('loginpage', auth)
     }
     catch (e) {
+      console.log('error')
       if (e.response.status === 422) {
         Object.keys(e.response.data.errors).forEach((key) => {
           throw Error(`${key}, {
@@ -51,13 +54,20 @@ export default function LoginScreen() {
       }
     }
     finally {
+      console.log('finally ill do it myself')
       setIsLoading(false)
+      console.log(loginData)
+      console.log('finally', auth)
     }
   }
 
-  useEffect(() => {
-    console.log('after request yo', data)
-  }, [data])
+  // useEffect(() => {
+  //   console.log('after request yo', data)
+  //   auth.setToken(data.token)
+  //   console.log(auth.token)
+  //   auth.setUser(data.data.id)
+  //   console.log(auth.user)
+  // }, [data])
 
   return (
     <View style={style.screen}>
@@ -68,6 +78,7 @@ export default function LoginScreen() {
           style={style.textInput}
           placeholder='login'
           placeholderTextColor='#FFCA4A'
+          value="admin"
           onChangeText={login => {
             setUsername(login)
           }}
@@ -79,6 +90,7 @@ export default function LoginScreen() {
           style={style.textInput}
           placeholder='password.'
           placeholderTextColor='#FFCA4A'
+          value="adminadmin"
           secureTextEntry={true}
           onChangeText={password => setPassword(password)}
         />

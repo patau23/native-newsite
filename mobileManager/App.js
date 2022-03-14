@@ -18,9 +18,14 @@ const Tab = createBottomTabNavigator()
 
 export default function App() {
   const auth = useAuth()
+  console.log('appjs', auth)
 
-  if (true) return <LoginScreen></LoginScreen>
-  
+  if (!auth.user) return (
+    <LoginScreen>
+
+    </LoginScreen>
+  )
+
   return (
     <NavigationContainer>
       <Tab.Navigator>
