@@ -1,3 +1,5 @@
+import { red } from "@material-ui/core/colors";
+
 export const style = {
   screen: {
     flex: 1,
@@ -13,6 +15,7 @@ export const style = {
     alignItems: "center",
   },
   textInput: {
+    color: '#fff',
     height: 50,
     flex: 1,
     padding: 10,
@@ -28,4 +31,7 @@ export const style = {
     marginTop: 40,
     backgroundColor: "#FFCA4A",
   },
+  textErr: {
+    color: '#C77172',
+  }
 }

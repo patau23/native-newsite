@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-// import { View, StatusBar, StyleSheet, Text, Button } from "react-native"
+import { Button } from "react-native"
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { NavigationContainer } from "@react-navigation/native"
@@ -20,6 +20,10 @@ export default function App() {
   const auth = useAuth()
   console.log('appjs', auth)
 
+  const onLogOut = () => {
+    auth.logOut();
+  };
+
   if (!auth.user) return (
     <LoginScreen>
 
@@ -28,6 +32,8 @@ export default function App() {
 
   return (
     <NavigationContainer>
+      <Button onPress={() => { onLogOut() }} title='Log out'></Button>
+
       <Tab.Navigator>
         <>
           <Tab.Screen name='Home' component={HomeScreen} />

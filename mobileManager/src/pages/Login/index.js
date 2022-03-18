@@ -1,11 +1,11 @@
 import axios from "axios"
 import api from "../../services/api/index"
-import React, {useEffect, useState} from "react"
-import {View, TextInput, TouchableOpacity, Text, Button} from "react-native"
-import {useAuth} from "../../hooks/useAuth/useAuth"
-import {style} from "../style"
+import React, { useEffect, useState } from "react"
+import { View, TextInput, TouchableOpacity, Text, Button } from "react-native"
+import { useAuth } from "../../hooks/useAuth/useAuth"
+import { style } from "../style"
 
-export default function LoginScreen () {
+export default function LoginScreen() {
   const auth = useAuth()
 
   const [username, setUsername] = useState("admin")
@@ -13,11 +13,13 @@ export default function LoginScreen () {
   const [isLoading, setIsLoading] = useState(false)
   const [data, setData] = useState(null)
 
+  const [error, setError] = useState()
+
   const singIn = async () => {
     try {
       console.log("doing request")
       setIsLoading(true)
-      const {data: loginData} = await api.auth.login(
+      const { data: loginData } = await api.auth.login(
         "",
         JSON.stringify({
           username: username,
@@ -33,16 +35,12 @@ export default function LoginScreen () {
           },
         },
       )
-      //   console.log("after request yo", loginData)
       setData(loginData)
-
-      //   auth.setToken(loginData.token)
-      //   auth.setUser(loginData.data)
-
-      //   console.log(loginData)
-      //   console.log("loginpage", auth)
+      console.log(loginData)
     } catch (e) {
-      //   console.log("error")
+      console.log(e, e.response.status)
+      e.response.status === 401 ? setError('Введен неправильный логин или пароль') : setError(null)
+
       if (e.response.status === 422) {
         Object.keys(e.response.data.errors).forEach(key => {
           throw Error(`${key}, {
@@ -53,9 +51,6 @@ export default function LoginScreen () {
       }
     } finally {
       setIsLoading(false)
-      //   console.log("finally ill do it myself")
-      //   console.log(loginData)
-      //   console.log("finally", auth)
     }
   }
 
@@ -67,7 +62,7 @@ export default function LoginScreen () {
       auth.setUser(data.data.id)
       console.log(auth.user)
     } catch {
-      console.log("first tiem")
+      console.log("first item")
     }
   }, [data])
 
@@ -79,7 +74,7 @@ export default function LoginScreen () {
           style={style.textInput}
           placeholder='login'
           placeholderTextColor='#FFCA4A'
-          value='admin'
+          // value='admin'
           onChangeText={login => {
             setUsername(login)
           }}
@@ -90,18 +85,21 @@ export default function LoginScreen () {
           style={style.textInput}
           placeholder='password.'
           placeholderTextColor='#FFCA4A'
-          value='adminadmin'
+          // value='adminadmin'
           secureTextEntry={true}
           onChangeText={password => setPassword(password)}
         />
       </View>
-      <TouchableOpacity style={style.loginBtn}>
+      {error ? <Text style={style.textErr}>{error}</Text> : <></>}
+      <TouchableOpacity
+        style={style.loginBtn}
+        onPress={() => {
+          singIn()
+        }}
+        disabled={isLoading}
+      >
         <Text
           style={style.loginText}
-          onPress={() => {
-            singIn()
-          }}
-          disabled={isLoading}
         >
           LOGIN
         </Text>
