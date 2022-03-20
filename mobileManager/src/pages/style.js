@@ -32,6 +32,8 @@ export const style = {
     backgroundColor: "#FFCA4A",
   },
   textErr: {
+    textAlign: 'center',
     color: '#C77172',
+    width: 250,
   }
 }

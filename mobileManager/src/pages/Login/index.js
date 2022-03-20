@@ -1,15 +1,22 @@
-import axios from "axios"
-import api from "../../services/api/index"
-import React, { useEffect, useState } from "react"
-import { View, TextInput, TouchableOpacity, Text, Button } from "react-native"
-import { useAuth } from "../../hooks/useAuth/useAuth"
-import { style } from "../style"
+import React, {useEffect, useState} from "react"
+import {
+  View,
+  TextInput as RNTextInput,
+  TouchableOpacity,
+  Text,
+} from "react-native"
 
-export default function LoginScreen() {
+import api from "../../services/api/index"
+import {useAuth} from "../../hooks/useAuth/useAuth"
+import LoginInput from "../components/LoginInput"
+
+import {style} from "../style"
+
+export default function LoginScreen () {
   const auth = useAuth()
 
-  const [username, setUsername] = useState("admin")
-  const [password, setPassword] = useState("adminadmin")
+  const [username, setUsername] = useState()
+  const [password, setPassword] = useState()
   const [isLoading, setIsLoading] = useState(false)
   const [data, setData] = useState(null)
 
@@ -19,7 +26,7 @@ export default function LoginScreen() {
     try {
       console.log("doing request")
       setIsLoading(true)
-      const { data: loginData } = await api.auth.login(
+      const {data: loginData} = await api.auth.login(
         "",
         JSON.stringify({
           username: username,
@@ -38,16 +45,25 @@ export default function LoginScreen() {
       setData(loginData)
       console.log(loginData)
     } catch (e) {
-      console.log(e, e.response.status)
-      e.response.status === 401 ? setError('Введен неправильный логин или пароль') : setError(null)
-
-      if (e.response.status === 422) {
-        Object.keys(e.response.data.errors).forEach(key => {
-          throw Error(`${key}, {
-            type: manual,
-            message: ${e.response.data.errors[key]}
-          }`)
-        })
+      console.log(`error ${e.response.status}`)
+      switch (e.response.status) {
+        case 401:
+          setError("Введен неправильный логин или пароль")
+          console.log(username, password)
+          break
+        case 404:
+          setError(
+            `Запрос на авторизацию обработан, однако сервер не смог найти ответ, попробуйте зайти позже`,
+          )
+          break
+        case 422:
+          setError(
+            `сервер успешно принял запрос, однако имеется какая-то логическая ошибка, из-за которой невозможно произвести операцию над ресурсом.`,
+          )
+          break
+        default:
+          setError(null)
+          break
       }
     } finally {
       setIsLoading(false)
@@ -55,54 +71,38 @@ export default function LoginScreen() {
   }
 
   useEffect(() => {
-    console.log("after request yo", data)
+    console.log("useEffect, data=", data)
     try {
+      console.log("useEffect try")
       auth.setToken(data.token)
-      console.log(auth.token)
       auth.setUser(data.data.id)
-      console.log(auth.user)
     } catch {
-      console.log("first item")
+      console.log("information not recorded")
     }
   }, [data])
 
   return (
     <View style={style.screen}>
-      <Text>LoginScreen</Text>
-      <View style={style.inputView}>
-        <TextInput
-          style={style.textInput}
-          placeholder='login'
-          placeholderTextColor='#FFCA4A'
-          // value='admin'
-          onChangeText={login => {
-            setUsername(login)
-          }}
-        />
-      </View>
-      <View style={style.inputView}>
-        <TextInput
-          style={style.textInput}
-          placeholder='password.'
-          placeholderTextColor='#FFCA4A'
-          // value='adminadmin'
-          secureTextEntry={true}
-          onChangeText={password => setPassword(password)}
-        />
-      </View>
+      <Text>Введите свои данные для входа</Text>
+      <LoginInput
+        isSecure={false}
+        placeholder='login'
+        onChangeText={login => setUsername(login)}
+      />
+      <LoginInput
+        isSecure={true}
+        placeholder='password'
+        onChangeText={password => setPassword(password)}
+      />
       {error ? <Text style={style.textErr}>{error}</Text> : <></>}
       <TouchableOpacity
         style={style.loginBtn}
+        disabled={isLoading}
         onPress={() => {
           singIn()
         }}
-        disabled={isLoading}
       >
-        <Text
-          style={style.loginText}
-        >
-          LOGIN
-        </Text>
+        <Text style={style.loginText}>LOGIN</Text>
       </TouchableOpacity>
     </View>
   )
