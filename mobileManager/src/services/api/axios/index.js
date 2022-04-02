@@ -3,7 +3,7 @@ import Cookies from "js-cookie"
 
 const axiosInstance = axios.create({
   // СОЗДАЕМ ЭКЗЕМПЛЯР БИБЛИОТЕКИ AXIOS, В КОТОРОМ ПОМЕНЯЕМ НЕКОТОРЫЕ ФУНКЦИОНАЛ
-  baseURL: "http://34.88.192.252/api/user/login", // url апишки
+  baseURL: "http://35.228.18.13/api", // url апишки
 })
 
 axiosInstance.interceptors.request.use(

@@ -1,9 +1,8 @@
 import axios from "../axios"
 
 const endpoints = {
-  login: (url, data, config) => axios.post(url, data, config),
-  getProfile: () => axios.get("/v1/auth/me"),
-  updateProfile: data => axios.patch("/v1/auth/me", data),
+  login: (data, config) => axios.post("/user/login", data, config),
+  checkItem: (data, config) => axios.post("/item/check", data, config),
 }
 
 export default endpoints

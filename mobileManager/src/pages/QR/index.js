@@ -1,37 +1,44 @@
-import React from "react"
-import { View, StatusBar, StyleSheet, Text, Button } from "react-native"
-import { style } from "../style"
-// import QRCodeScanner from 'react-native-qrcode-scanner';
+"use strict"
 
-export default function QRScreen() {
-  // const onSuccess = (e) => {
-  //   Linking.openURL(e.data).catch(err =>
-  //     console.error('An error occured', err)
-  //   );
-  // }
+import {wait} from "@testing-library/user-event/dist/utils"
+import React, {useEffect, useState} from "react"
 
+import {
+  AppRegistry,
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Linking,
+} from "react-native"
 
-  // return (
-  //   <QRCodeScanner
-  //     onRead={onSuccess()}
-  //     topContent={
-  //       <Text style={styles.centerText}>
-  //         Go to{' '}
-  //         <Text style={styles.textBold}>wikipedia.org/wiki/QR_code</Text> on
-  //         your computer and scan the QR code.
-  //       </Text>
-  //     }
-  //     bottomContent={
-  //       <TouchableOpacity style={styles.buttonTouchable}>
-  //         <Text style={styles.buttonText}>OK. Got it!</Text>
-  //       </TouchableOpacity>
-  //     }
-  //   />
-  // );
+import QRCodeScanner from "react-native-qrcode-scanner"
+
+export default function QRScreen ({navigation}) {
+  let thisScanner = null
+
+  const onSuccess = e => {
+    console.log(e.data)
+    thisScanner.reactivate()
+    wait(2000).then(() => navigation.navigate("Home"))
+  }
+
   return (
-    <View style={style.screen}>
-      <Text>QRScreen</Text>
-    </View>
+    <QRCodeScanner
+      onRead={e => onSuccess(e)}
+      ref={node => (thisScanner = node)}
+      reactivate={false}
+      bottomContent={
+        <TouchableOpacity
+          style={styles.buttonTouchable}
+          onPress={() => {
+            reActivate()
+          }}
+        >
+          <Text style={styles.buttonText}>Reactivate</Text>
+        </TouchableOpacity>
+      }
+    />
   )
 }
 
@@ -40,18 +47,19 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     padding: 32,
-    color: '#777',
+    color: "#777",
   },
   textBold: {
-    fontWeight: '500',
-    color: '#000',
+    fontWeight: "500",
+    color: "#000",
   },
   buttonText: {
     fontSize: 21,
-    color: 'rgb(0,122,255)',
+    color: "rgb(0,122,255)",
   },
   buttonTouchable: {
     padding: 16,
   },
-});
+})
 
+AppRegistry.registerComponent("default", () => QRScreen)
