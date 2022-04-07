@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react"
 import {Button} from "react-native"
+import Cookies from "js-cookie"
 
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs"
 import {NavigationContainer} from "@react-navigation/native"
@@ -11,22 +12,20 @@ import PersonalScreen from "./src/pages/Personal/index.js"
 import SettingsScreen from "./src/pages/Settings/index.js"
 
 import {useAuth} from "./src/hooks/useAuth/useAuth.js"
-// import axios from "axios"
-// import Cookies from "js-cookie"
 
 const Tab = createBottomTabNavigator()
 
 export default function App () {
   const auth = useAuth()
   console.log(
-    "token entry => ",
+    "APP.JS 20 - token entry => ",
     auth.token ? auth.token : "token does not exist",
   )
   console.log(
-    "user entry => ",
+    "APP.JS 24 - user entry => ",
     auth.user ? auth.user : "user in not authorized",
   )
-
+  console.log("APPJS 28", Cookies.get("auth-token"))
   const onLogOut = () => auth.logOut()
 
   if (!auth.user) return <LoginScreen></LoginScreen>
@@ -45,7 +44,7 @@ export default function App () {
           <Tab.Screen name='Home' component={HomeScreen} />
           <Tab.Screen name='QRScreen' component={QRScreen} />
           <Tab.Screen name='Personal' component={PersonalScreen} />
-          <Tab.Screen name='Settings' component={SettingsScreen} />
+          {/* <Tab.Screen name='Settings' component={SettingsScreen} /> */}
         </>
       </Tab.Navigator>
     </NavigationContainer>

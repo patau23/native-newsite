@@ -33,7 +33,7 @@ export default function LoginScreen ({navigation}) {
   const [error, setError] = useState()
 
   const singIn = async () => {
-    console.log("doing request")
+    console.log("doing request to sing in")
     setIsLoading(true)
     await api.auth
       .login(
@@ -80,7 +80,8 @@ export default function LoginScreen ({navigation}) {
         "attempt to write information to the global application provider",
       )
       auth.setToken(data.token)
-      auth.setUser(data.data.id)
+      auth.setUser(data.data)
+      console.log(data.data)
       console.log("succesful")
     } catch {
       console.log("information write attempt failed")

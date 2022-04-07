@@ -1,6 +1,3 @@
-"use strict"
-
-import {wait} from "@testing-library/user-event/dist/utils"
 import React, {useEffect, useState} from "react"
 
 import {
@@ -12,54 +9,70 @@ import {
   Linking,
 } from "react-native"
 
+import api from "../../services/api/index"
 import QRCodeScanner from "react-native-qrcode-scanner"
+import {useAuth} from "../../hooks/useAuth/useAuth"
 
 export default function QRScreen ({navigation}) {
+  const auth = useAuth()
+  const CONFIG = {
+    cache: "no-cache",
+    mode: "no-cors",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${auth.token}`,
+    },
+  }
+  const [isLoading, setIsLoading] = useState(false)
+  const [code, setCode] = useState()
   let thisScanner = null
 
-  const onSuccess = e => {
+  const onSuccess = async e => {
+    // console.log(e.data)
+    // wait(2000).then(function () {
+    // navigation.navigate("Home", {code: e.data})
+    // })
+    console.log("QR 35 - doing request to find item")
+    setIsLoading(true)
     console.log(e.data)
-    thisScanner.reactivate()
-    wait(2000).then(() => navigation.navigate("Home"))
+    await api.auth
+      .checkItem(
+        JSON.stringify({
+          code: e.data,
+        }),
+        CONFIG,
+      )
+      .then(
+        ({data}) => setCode(data),
+        e => {
+          console.warn("fetch failure", e.response.data)
+        },
+      )
+      .catch(e => {
+        console.log("something goes wrong")
+        console.log(e)
+        throw e
+      })
+      .finally(() => setIsLoading(false))
+    console.log(code, "yeah we get some code")
+    navigation.navigate("Home", {code: code})
   }
 
   return (
-    <QRCodeScanner
-      onRead={e => onSuccess(e)}
-      ref={node => (thisScanner = node)}
-      reactivate={false}
-      bottomContent={
-        <TouchableOpacity
-          style={styles.buttonTouchable}
-          onPress={() => {
-            reActivate()
-          }}
-        >
-          <Text style={styles.buttonText}>Reactivate</Text>
-        </TouchableOpacity>
-      }
-    />
+    <View>
+      <QRCodeScanner
+        cameraStyle={styles.qrstyles}
+        onRead={e => onSuccess(e)}
+        ref={node => (thisScanner = node)}
+        reactivate={false}
+      />
+      {isLoading ? <Text>Loading, Wait</Text> : <></>}
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  centerText: {
-    flex: 1,
-    fontSize: 18,
-    padding: 32,
-    color: "#777",
-  },
-  textBold: {
-    fontWeight: "500",
-    color: "#000",
-  },
-  buttonText: {
-    fontSize: 21,
-    color: "rgb(0,122,255)",
-  },
-  buttonTouchable: {
-    padding: 16,
-  },
+  qrstyles: {},
 })
-
-AppRegistry.registerComponent("default", () => QRScreen)
