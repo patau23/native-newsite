@@ -1,25 +1,7 @@
-import { red } from "@material-ui/core/colors";
-
 export const style = {
   screen: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-  },
-  inputView: {
-    backgroundColor: "#5B76F0",
-    borderRadius: 30,
-    width: "70%",
-    height: 45,
-    marginBottom: 20,
-    alignItems: "center",
-  },
-  textInput: {
-    color: '#fff',
-    height: 50,
-    flex: 1,
-    padding: 10,
-    marginLeft: 20,
     alignItems: "center",
   },
   loginBtn: {
@@ -32,8 +14,8 @@ export const style = {
     backgroundColor: "#FFCA4A",
   },
   textErr: {
-    textAlign: 'center',
-    color: '#C77172',
+    textAlign: "center",
+    color: "#C77172",
     width: 250,
-  }
-}
+  },
+};

@@ -1,16 +1,11 @@
-import React, {useEffect, useState} from "react"
-import {
-  View,
-  TextInput as RNTextInput,
-  TouchableOpacity,
-  Text,
-} from "react-native"
+import React, {useEffect, useState} from "react";
+import {View, TouchableOpacity, Text} from "react-native";
 
-import api from "../../services/api/index"
-import {useAuth} from "../../hooks/useAuth/useAuth"
-import LoginInput from "../components/LoginInput"
+import api from "../../services/api/index";
+import {useAuth} from "../../hooks/useAuth/useAuth";
+import LoginInput from "../../components/elements/LoginInput/LoginInput";
 
-import {style} from "../style"
+import {style} from "../style";
 
 const CONFIG = {
   cache: "no-cache",
@@ -19,22 +14,21 @@ const CONFIG = {
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
+    Host: "inventory",
   },
-}
+};
 
-export default function LoginScreen ({navigation}) {
-  const auth = useAuth()
+export default function LoginScreen() {
+  const auth = useAuth();
 
-  const [username, setUsername] = useState("admin")
-  const [password, setPassword] = useState("adminadmin")
-  const [isLoading, setIsLoading] = useState(false)
-  const [data, setData] = useState(null)
-
-  const [error, setError] = useState()
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("adminadmin");
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState();
 
   const singIn = async () => {
-    console.log("doing request to sing in")
-    setIsLoading(true)
+    setIsLoading(true);
     await api.auth
       .login(
         JSON.stringify({
@@ -44,61 +38,56 @@ export default function LoginScreen ({navigation}) {
         CONFIG,
       )
       .then(({data}) => {
-        setData(data)
+        setData(data);
       })
       .catch(e => {
-        console.log(`error ${e.response.status}`)
         switch (e.response.status) {
           case 401:
-            setError("Введен неправильный логин или пароль")
-            console.log(username, password)
-            break
+            setError("Введен неправильный логин или пароль");
+            break;
           case 404:
             setError(
               `Запрос на авторизацию обработан, однако сервер не смог найти ответ, попробуйте зайти позже`,
-            )
-            break
+            );
+            break;
           case 422:
             setError(
               `сервер успешно принял запрос, однако имеется какая-то логическая ошибка, из-за которой невозможно произвести операцию над ресурсом.`,
-            )
-            break
+            );
+            break;
           default:
-            setError(null)
-            break
+            setError(null);
+            break;
         }
-        throw error
+        throw error;
       })
       .finally(() => {
-        setIsLoading(false)
-      })
-  }
+        setIsLoading(false);
+      });
+  };
 
   useEffect(() => {
     try {
-      console.log(
-        "attempt to write information to the global application provider",
-      )
-      auth.setToken(data.token)
-      auth.setUser(data.data)
-      console.log(data.data)
-      console.log("succesful")
-    } catch {
-      console.log("information write attempt failed")
+      auth.setToken(data.token);
+      auth.setUser(data.data);
+    } catch (e) {
+      data?.token === null
+        ? console.log("not authorized")
+        : console.log("information write attempt failed with ", e);
     }
-  }, [data])
+  }, [data]);
 
   return (
     <View style={style.screen}>
       <Text>Введите свои данные для входа</Text>
       <LoginInput
         isSecure={false}
-        placeholder='login'
+        placeholder="login"
         onChangeText={login => setUsername(login)}
       />
       <LoginInput
         isSecure={true}
-        placeholder='password'
+        placeholder="password"
         onChangeText={password => setPassword(password)}
       />
       {error ? <Text style={style.textErr}>{error}</Text> : <></>}
@@ -106,13 +95,13 @@ export default function LoginScreen ({navigation}) {
         style={style.loginBtn}
         disabled={isLoading}
         onPress={() => {
-          singIn()
+          singIn();
         }}
       >
         <Text style={style.loginText}>LOGIN</Text>
       </TouchableOpacity>
     </View>
-  )
+  );
 }
 
 /*   OLD FUNCTION

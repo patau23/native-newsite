@@ -1,72 +1,76 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react"
-import Cookies from "js-cookie"
-import {AuthContext} from "../../contexts/authContext/context"
-import api from "../../services/api"
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {AuthContext} from "../../contexts/authContext/context";
+import api from "../../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export function AuthProvider (props) {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [user, setUser] = useState(null)
-  const [token, setTokenData] = useState(null)
+export function AuthProvider(props) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [user, setUser] = useState(null);
+  const [token, setTokenData] = useState(null);
+
+  const storeData = async (key, value) => {
+    try {
+      await AsyncStorage.setItem(key, value);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const removeData = async key => {
+    try {
+      await AsyncStorage.removeItem(key);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const setToken = useCallback(tokenData => {
-    setTokenData(tokenData)
+    setTokenData(tokenData);
 
     if (tokenData) {
-      Cookies.set("auth-token", tokenData)
+      storeData("auth-token", tokenData);
     } else {
-      Cookies.remove("auth-token")
+      removeData("auth-token");
     }
-    console.log("Provider 12 - setToken work")
-  }, [])
+  }, []);
 
   const logOut = useCallback(() => {
-    setUser(null)
-    setToken(null)
-    console.log("Provider 23 - logOut work")
-  }, [setToken])
+    setUser(null);
+    setToken(null);
+  }, [setToken]);
 
   const loadData = useCallback(async () => {
-    const tokenData = Cookies.get("auth-token")
-    setTokenData(tokenData)
-
+    const tokenData = await AsyncStorage.getItem("auth-token");
+    setTokenData(tokenData);
     try {
       if (tokenData) {
-        const {data} = await api.auth.getProfile()
-        setUser(data)
+        const {data} = await api.auth.getProfile();
+        setUser(data.data);
       }
     } catch {
-      setToken(null)
+      setToken(null);
     } finally {
-      setIsLoaded(true)
+      setIsLoaded(true);
     }
-    console.log("Provider 29 - loadData work")
-  }, [setToken])
+  }, [setToken]);
 
   useEffect(() => {
-    loadData()
-    console.log("Provider 46 - useEffect with loaddata work")
-  }, [loadData])
+    loadData();
+  }, [loadData]);
 
-  const contextValue = useMemo(
-    function () {
-      console.log("Provider 52 - useMemo work")
-      return {
-        isLoaded,
-        user,
-        token,
-        setUser,
-        setToken,
-        logOut,
-      }
-    },
-    [isLoaded, user, token, setToken, logOut],
-  )
+  const contextValue = useMemo(() => {
+    return {
+      isLoaded,
+      user,
+      token,
+      setUser,
+      setToken,
+      logOut,
+    };
+  }, [isLoaded, user, token, setToken, logOut]);
 
-  console.log("AuthProvider")
-  console.log('my cookies are ',Cookies)
   return (
     <AuthContext.Provider value={contextValue}>
       {props.children}
     </AuthContext.Provider>
-  )
+  );
 }
